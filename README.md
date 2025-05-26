@@ -325,3 +325,5 @@ Each entity has timestamps (`createdAt` and `updatedAt`) for auditing purposes. 
 ## License
 
 ISC
+#   h i r i n g _ c h a l l e n g e  
+ 
