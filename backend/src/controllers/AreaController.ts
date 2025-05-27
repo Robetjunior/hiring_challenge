@@ -35,7 +35,9 @@ export class AreaController extends Controller {
     }
 
     @Post()
-    public async createArea(@Body() requestBody: Pick<Area, "name" | "locationDescription" | "plantId">): Promise<Area> {
+    public async createArea(
+        @Body() requestBody: Pick<Area, "name" | "locationDescription" | "plantId">
+    ): Promise<Area> {
         try {
             return await this.areaService.create(requestBody);
         } catch (error) {
@@ -88,4 +90,59 @@ export class AreaController extends Controller {
             throw error;
         }
     }
-} 
+
+    @Get("{areaId}/neighbors")
+    public async getNeighbors(@Path() areaId: string): Promise<Area[]> {
+        try {
+            return await this.areaService.getNeighbors(areaId);
+        } catch (error) {
+            if (error instanceof AreaNotFoundError) {
+                this.setStatus(AreaNotFoundError.httpStatusCode);
+                throw error;
+            }
+            throw error;
+        }
+    }
+
+    @Post("{areaId}/neighbors/{neighborId}")
+    public async addNeighbor(
+        @Path() areaId: string,
+        @Path() neighborId: string
+    ): Promise<void> {
+        try {
+            await this.areaService.addNeighbor(areaId, neighborId);
+            this.setStatus(204);
+        } catch (error) {
+            if (error instanceof AreaNotFoundError) {
+                this.setStatus(AreaNotFoundError.httpStatusCode);
+                throw error;
+            }
+            if (error instanceof InvalidDataError) {
+                this.setStatus(InvalidDataError.httpStatusCode);
+                throw error;
+            }
+            if (error instanceof InvalidForeignKeyError) {
+                this.setStatus(InvalidForeignKeyError.httpStatusCode);
+                throw error;
+            }
+            throw error;
+        }
+    }
+
+    @Delete("{areaId}/neighbors/{neighborId}")
+    public async removeNeighbor(
+        @Path() areaId: string,
+        @Path() neighborId: string
+    ): Promise<void> {
+        try {
+            await this.areaService.removeNeighbor(areaId, neighborId);
+            this.setStatus(204);
+        } catch (error) {
+            if (error instanceof AreaNotFoundError) {
+                this.setStatus(AreaNotFoundError.httpStatusCode);
+                throw error;
+            }
+            throw error;
+        }
+    }
+}
