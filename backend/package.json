@@ -11,7 +11,9 @@
     "generate": "yarn tsoa && yarn build",
     "test": "yarn run generate && jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "migration:generate": "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:generate \"src/migrations/CreateAreaNeighborsAndEquipmentAreas\" --dataSource \"src/config/database.ts\"",
+    "migration:run":      "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:run --dataSource \"src/config/database.ts\""
   },
   "keywords": [],
   "author": "",
