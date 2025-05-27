@@ -14,81 +14,86 @@ export class AreaService {
     }
 
     public async findAll(): Promise<Area[]> {
-        return this.areaRepository.find({
-            relations: ["plant", "equipment", "equipment.parts"]
-        });
+        return this.areaRepository
+        .createQueryBuilder('area')
+        .leftJoinAndSelect('area.plant', 'plant')
+        .leftJoinAndSelect('area.neighbors', 'neighbors')
+        .leftJoinAndSelect('area.equipment', 'equipment')
+        .getMany();
     }
 
     public async findById(id: string): Promise<Area> {
-        const area = await this.areaRepository.findOne({
-            where: { id },
-            relations: ["plant", "equipment", "equipment.parts"]
-        });
-        if (!area) {
-            throw new AreaNotFoundError();
-        }
+        const area = await this.areaRepository
+        .createQueryBuilder('area')
+        .leftJoinAndSelect('area.neighbors', 'neighbors')
+        .where('area.id = :id', { id })
+        .getOne();
+        if (!area) throw new AreaNotFoundError();
         return area;
     }
 
-    public async create(data: Pick<Area, "name" | "locationDescription" | "plantId">): Promise<Area> {
-        try {
-            const area = this.areaRepository.create(data);
-            const savedArea = await this.areaRepository.save(area);
-            return this.areaRepository.findOne({
-                where: { id: savedArea.id },
-                relations: ["plant"]
-            }) as Promise<Area>;
-        } catch (error) {
-            if (error instanceof QueryFailedError && error.message.includes('FOREIGN KEY')) {
-                throw new InvalidForeignKeyError("Invalid plant ID");
-            }
-            if (error instanceof QueryFailedError) {
-                throw new InvalidDataError("Invalid area data");
-            }
-            throw error;
+    public async getNeighbors(id: string): Promise<Area[]> {
+        const area = await this.findById(id);
+        return area.neighbors || [];
+    }
+
+    async addNeighbor(areaId: string, neighborId: string): Promise<void> {
+        if (areaId === neighborId) throw new InvalidDataError("An area cannot be its own neighbor");
+        const area = await this.findById(areaId);
+        const neighbor = await this.findById(neighborId);
+
+        if (!area.neighbors) area.neighbors = [];
+        if (!neighbor.neighbors) neighbor.neighbors = [];
+
+        if (!area.neighbors.some(n => n.id === neighborId)) {
+            area.neighbors.push(neighbor);
+            await this.areaRepository.save(area);
+        }
+        if (!neighbor.neighbors.some(n => n.id === areaId)) {
+            neighbor.neighbors.push(area);
+            await this.areaRepository.save(neighbor);
         }
     }
 
-    public async update(id: string, data: Partial<Pick<Area, "name" | "locationDescription">>): Promise<Area> {
-        try {
-            const area = await this.areaRepository.findOne({ 
-                where: { id },
-                relations: ["plant"]
-            });
-            if (!area) {
-                throw new AreaNotFoundError();
-            }
+    async removeNeighbor(areaId: string, neighborId: string): Promise<void> {
+        const area = await this.findById(areaId);
+        const neighbor = await this.findById(neighborId);
 
-            Object.assign(area, data);
-            await this.areaRepository.save(area);
-            return this.areaRepository.findOne({
-                where: { id: area.id },
-                relations: ["plant"]
-            }) as Promise<Area>;
+        area.neighbors = (area.neighbors || []).filter(n => n.id !== neighborId);
+        neighbor.neighbors = (neighbor.neighbors || []).filter(n => n.id !== areaId);
+        await this.areaRepository.save(area);
+        await this.areaRepository.save(neighbor);
+    }
+
+    public async create(data: Pick<Area, 'name' | 'locationDescription' | 'plantId'>): Promise<Area> {
+        try {
+        const area = this.areaRepository.create(data);
+        const saved = await this.areaRepository.save(area);
+        return this.findById(saved.id);
+        } catch (error: any) {
+        if (error.message.includes('FOREIGN KEY')) {
+            throw new InvalidForeignKeyError('Invalid plant ID');
+        }
+        throw new InvalidDataError('Invalid area data');
+        }
+    }
+
+    public async update(id: string, data: Partial<Pick<Area, 'name' | 'locationDescription'>>): Promise<Area> {
+        const area = await this.findById(id);
+        Object.assign(area, data);
+        try {
+        await this.areaRepository.save(area);
+        return this.findById(id);
         } catch (error) {
-            if (error instanceof QueryFailedError) {
-                throw new InvalidDataError("Invalid area data");
-            }
-            throw error;
+        throw new InvalidDataError('Invalid area data');
         }
     }
 
     public async delete(id: string): Promise<void> {
-        const area = await this.areaRepository.findOne({ 
-            where: { id },
-            relations: ["equipment"]
-        });
-        if (!area) {
-            throw new AreaNotFoundError();
+        const area = await this.findById(id);
+        if (area.equipment && area.equipment.length > 0) {
+        throw new DependencyExistsError('Cannot delete area with associated equipment');
         }
-
-        try {
-            await this.areaRepository.remove(area);
-        } catch (error) {
-            if (error instanceof QueryFailedError) {
-                throw new DependencyExistsError("Cannot delete area with associated equipment");
-            }
-            throw error;
-        }
+        await this.areaRepository.remove(area);
     }
-} 
+}
