@@ -7,9 +7,9 @@ import { Part } from "../models/Part";
 export const AppDataSource = new DataSource({
     type: "sqlite",
     database: "opwell.sqlite",
-    synchronize: true, // Set to false in production
+    synchronize: false, 
     logging: true,
     entities: [Plant, Area, Equipment, Part],
-    migrations: [],
-    subscribers: [],
-}); 
+    migrations: ["src/migrations/*.ts"],
+    migrationsTableName: "migrations_table"
+});
