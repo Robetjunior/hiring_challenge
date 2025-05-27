@@ -35,7 +35,9 @@ export class EquipmentController extends Controller {
     }
 
     @Post()
-    public async createEquipment(@Body() requestBody: Omit<Equipment, "id" | "createdAt" | "updatedAt">): Promise<Equipment> {
+    public async createEquipment(
+        @Body() requestBody: Omit<Equipment, "id" | "createdAt" | "updatedAt"> & { areas?: string[] }
+    ): Promise<Equipment> {
         try {
             return await this.equipmentService.create(requestBody);
         } catch (error) {
@@ -54,7 +56,7 @@ export class EquipmentController extends Controller {
     @Put("{equipmentId}")
     public async updateEquipment(
         @Path() equipmentId: string,
-        @Body() requestBody: Partial<Omit<Equipment, "id" | "createdAt" | "updatedAt">>
+        @Body() requestBody: Partial<Omit<Equipment, "id" | "createdAt" | "updatedAt"> & { areas?: string[] }>
     ): Promise<Equipment> {
         try {
             return await this.equipmentService.update(equipmentId, requestBody);
@@ -92,4 +94,4 @@ export class EquipmentController extends Controller {
             throw error;
         }
     }
-} 
+}
