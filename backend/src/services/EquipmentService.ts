@@ -1,97 +1,90 @@
+// src/services/EquipmentService.ts
 import { Equipment } from "../models/Equipment";
 import { DatabaseContext } from "../config/database-context";
-import { Repository, QueryFailedError } from "typeorm";
+import { Repository } from "typeorm";
 import { EquipmentNotFoundError } from "../errors/EquipmentNotFoundError";
-import { InvalidForeignKeyError } from "../errors/InvalidForeignKeyError";
 import { InvalidDataError } from "../errors/InvalidDataError";
-import { DependencyExistsError } from "../errors/DependencyExistsError";
+import { AreaService } from "./AreaService";
 
 export class EquipmentService {
-    private equipmentRepository: Repository<Equipment>;
+  private equipmentRepository: Repository<Equipment>;
+  private areaService = new AreaService();
 
-    constructor() {
-        this.equipmentRepository = DatabaseContext.getInstance().getRepository(Equipment);
-    }
+  constructor() {
+    this.equipmentRepository = DatabaseContext.getInstance().getRepository(Equipment);
+  }
 
-    public async findAll(): Promise<Equipment[]> {
-        return this.equipmentRepository.find({
-            relations: ["area", "parts"]
-        });
-    }
+  public async findAll(): Promise<Equipment[]> {
+    return this.equipmentRepository
+      .createQueryBuilder('equipment')
+      .leftJoinAndSelect('equipment.areas', 'areas')
+      .leftJoinAndSelect('equipment.parts', 'parts')
+      .getMany();
+  }
 
-    public async findById(id: string): Promise<Equipment> {
-        const equipment = await this.equipmentRepository.findOne({
-            where: { id },
-            relations: ["area", "parts"]
-        });
-        if (!equipment) {
-            throw new EquipmentNotFoundError();
+  public async findById(id: string): Promise<Equipment> {
+    const equipment = await this.equipmentRepository
+      .createQueryBuilder('equipment')
+      .leftJoinAndSelect('equipment.areas', 'areas')
+      .leftJoinAndSelect('equipment.parts', 'parts')
+      .where('equipment.id = :id', { id })
+      .getOne();
+    if (!equipment) throw new EquipmentNotFoundError();
+    return equipment;
+  }
+
+  public async create(
+    data: Omit<Equipment, "id" | "createdAt" | "updatedAt"> & { areas?: string[] }
+  ): Promise<Equipment> {
+    const areaIds = data.areas ?? [data.areaId];
+    const areas = await Promise.all(
+      areaIds.map(id => this.areaService.findById(id))
+    );
+    // Validate neighbor relationships
+    for (let i = 0; i < areas.length; i++) {
+      for (let j = i + 1; j < areas.length; j++) {
+        const neighborIds = (await this.areaService.getNeighbors(areas[i].id)).map(a => a.id);
+        if (!neighborIds.includes(areas[j].id)) {
+          throw new InvalidDataError(`Areas ${areas[i].id} and ${areas[j].id} are not neighbors`);
         }
-        return equipment;
+      }
     }
+    const equipment = this.equipmentRepository.create();
+    Object.assign(equipment, data);
+    equipment.areas = areas;
 
-    public async create(data: Omit<Equipment, "id" | "createdAt" | "updatedAt">): Promise<Equipment> {
-        try {
-            const equipment = this.equipmentRepository.create(data);
-            const savedEquipment = await this.equipmentRepository.save(equipment);
-            return this.equipmentRepository.findOne({
-                where: { id: savedEquipment.id },
-                relations: ["area"]
-            }) as Promise<Equipment>;
-        } catch (error) {
-            if (error instanceof QueryFailedError && error.message.includes('FOREIGN KEY')) {
-                throw new InvalidForeignKeyError("Invalid area ID");
-            }
-            if (error instanceof QueryFailedError) {
-                throw new InvalidDataError("Invalid equipment data");
-            }
-            throw error;
+    const saved = await this.equipmentRepository.save(equipment);
+    return this.findById(saved.id);
+  }
+
+  public async update(
+    id: string,
+    data: Partial<Omit<Equipment, "id" | "createdAt" | "updatedAt" | "areas">> & { areas?: string[] }
+  ): Promise<Equipment> {
+    const eq = await this.findById(id);
+    const { areas, ...rest } = data;
+    if (areas) {
+      const areaEntities = await Promise.all(
+        areas.map(aid => this.areaService.findById(aid))
+      );
+      for (let i = 0; i < areaEntities.length; i++) {
+        for (let j = i + 1; j < areaEntities.length; j++) {
+          const neighborIds = (await this.areaService.getNeighbors(areaEntities[i].id)).map(a => a.id);
+          if (!neighborIds.includes(areaEntities[j].id)) {
+            throw new InvalidDataError(`Areas ${areaEntities[i].id} and ${areaEntities[j].id} are not neighbors`);
+          }
         }
+      }
+      eq.areas = areaEntities;
     }
+    Object.assign(eq, rest);
+    const saved = await this.equipmentRepository.save(eq);
+    return this.findById(saved.id);
+  }
 
-    public async update(id: string, data: Partial<Omit<Equipment, "id" | "createdAt" | "updatedAt">>): Promise<Equipment> {
-        try {
-            const equipment = await this.equipmentRepository.findOne({ 
-                where: { id },
-                relations: ["area"]
-            });
-            if (!equipment) {
-                throw new EquipmentNotFoundError();
-            }
-
-            Object.assign(equipment, data);
-            await this.equipmentRepository.save(equipment);
-            return this.equipmentRepository.findOne({
-                where: { id: equipment.id },
-                relations: ["area"]
-            }) as Promise<Equipment>;
-        } catch (error) {
-            if (error instanceof QueryFailedError && error.message.includes('FOREIGN KEY')) {
-                throw new InvalidForeignKeyError("Invalid area ID");
-            }
-            if (error instanceof QueryFailedError) {
-                throw new InvalidDataError("Invalid equipment data");
-            }
-            throw error;
-        }
-    }
-
-    public async delete(id: string): Promise<void> {
-        const equipment = await this.equipmentRepository.findOne({ 
-            where: { id },
-            relations: ["parts"]
-        });
-        if (!equipment) {
-            throw new EquipmentNotFoundError();
-        }
-
-        try {
-            await this.equipmentRepository.remove(equipment);
-        } catch (error) {
-            if (error instanceof QueryFailedError) {
-                throw new DependencyExistsError("Cannot delete equipment with associated parts");
-            }
-            throw error;
-        }
-    }
-} 
+  public async delete(id: string): Promise<void> {
+    const eq = await this.equipmentRepository.findOneBy({ id });
+    if (!eq) throw new EquipmentNotFoundError();
+    await this.equipmentRepository.remove(eq);
+  }
+}
