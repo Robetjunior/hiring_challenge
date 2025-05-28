@@ -43,13 +43,14 @@ const FormModal: React.FC<FormModalProps> = ({
   };
 
   const handleFinish = (values: any) => {
-    // Convert date fields to ISO string
     const processedValues = Object.entries(values).reduce(
       (acc, [key, value]) => {
-        if (
-          value instanceof Date ||
-          (value && typeof value.toISOString === "function")
-        ) {
+        // Dayjs
+        if (value && typeof (value as any).toDate === "function") {
+          acc[key] = (value as any).toDate().toISOString().split("T")[0];
+        }
+        // Date
+        else if (value instanceof Date) {
           acc[key] = value.toISOString().split("T")[0];
         } else {
           acc[key] = value;
@@ -68,7 +69,6 @@ const FormModal: React.FC<FormModalProps> = ({
       open={visible}
       onCancel={handleCancel}
       footer={null}
-      destroyOnClose
     >
       <Form
         form={form}
