@@ -43,4 +43,5 @@ export class Equipment {
 
     @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
     updatedAt!: Date;
+    maintenances: any;
 }

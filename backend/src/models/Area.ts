@@ -35,4 +35,5 @@ export class Area {
 
     @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
     updatedAt!: Date;
+    maintenances: any;
 }

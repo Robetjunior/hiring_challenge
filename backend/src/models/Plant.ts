@@ -20,4 +20,5 @@ export class Plant {
 
     @UpdateDateColumn()
     updatedAt!: Date;
+    maintenances: any;
 } 
