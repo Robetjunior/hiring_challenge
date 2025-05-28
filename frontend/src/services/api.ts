@@ -18,6 +18,7 @@ export interface Plant {
 }
 
 export interface Area {
+  [x: string]: any;
   id: string;
   name: string;
   locationDescription: string;
@@ -33,8 +34,11 @@ export interface Equipment {
   manufacturer: string;
   serialNumber: string;
   initialOperationsDate: string;
+  // legacy single-area kept para compatibilidade:
   areaId: string;
   area?: Area;
+  // nova multi-área:
+  areas?: Area[];
   createdAt: string;
   updatedAt: string;
 }
@@ -75,14 +79,20 @@ export const areaApi = {
   update: (id: string, data: Partial<Omit<Area, 'id' | 'createdAt' | 'updatedAt'>>) =>
     api.put<Area>(`/areas/${id}`, data),
   delete: (id: string) => api.delete(`/areas/${id}`),
+  getNeighbors: (areaId: string) =>
+    api.get<Area[]>(`/areas/${areaId}/neighbors`),
+  addNeighbor: (areaId: string, neighborId: string) =>
+    api.post<void>(`/areas/${areaId}/neighbors/${neighborId}`),
+  removeNeighbor: (areaId: string, neighborId: string) =>
+    api.delete<void>(`/areas/${areaId}/neighbors/${neighborId}`),
 };
 
 export const equipmentApi = {
   getAll: () => api.get<Equipment[]>('/equipment'),
   getById: (id: string) => api.get<Equipment>(`/equipment/${id}`),
-  create: (data: Omit<Equipment, 'id' | 'createdAt' | 'updatedAt'>) =>
+  create: (data: Omit<Equipment, 'id'|'createdAt'|'updatedAt'> & { areas: string[] }) =>
     api.post<Equipment>('/equipment', data),
-  update: (id: string, data: Partial<Omit<Equipment, 'id' | 'createdAt' | 'updatedAt'>>) =>
+  update: (id: string, data: Partial<Omit<Equipment, 'id'|'createdAt'|'updatedAt'> & { areas?: string[] }>) =>
     api.put<Equipment>(`/equipment/${id}`, data),
   delete: (id: string) => api.delete(`/equipment/${id}`),
 };

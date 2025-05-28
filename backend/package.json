@@ -8,22 +8,24 @@
     "dev": "yarn run generate && ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "tsoa": "tsoa spec-and-routes",
-    "generate": "yarn tsoa && yarn build",
+    "swagger:augment": "node scripts/augment-swagger.js",
+    "generate": "yarn tsoa && yarn build && yarn swagger:augment",
     "test": "yarn run generate && jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "migration:generate": "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:generate \"src/migrations/CreateAreaNeighborsAndEquipmentAreas\" --dataSource \"src/config/database.ts\"",
-    "migration:run":      "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:run --dataSource \"src/config/database.ts\""
+    "migration:run": "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:run --dataSource \"src/config/database.ts\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "class-validator": "^0.14.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "reflect-metadata": "^0.1.13",
+    "reflect-metadata": "^0.1.14",
     "sqlite3": "^5.1.7",
-    "swagger-ui-express": "^5.0.0",
+    "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "typeorm": "^0.3.20"
   },

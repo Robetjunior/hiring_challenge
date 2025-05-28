@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -12,11 +12,12 @@ import {
   Space,
 } from "antd";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import { areaApi, plantApi, Area, Plant } from "@/services/api";
+import { areaApi, plantApi, Area } from "@/services/api";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  LinkOutlined,
   RightOutlined,
 } from "@ant-design/icons";
 import type { TableProps } from "antd";
@@ -27,15 +28,19 @@ export default function AreasPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [filters, setFilters] = useState({ name: "", plantId: "" });
+  const [nbrModalVisible, setNbrModalVisible] = useState(false);
+  const [currentArea, setCurrentArea] = useState<Area | null>(null);
+  const [currentNeighbors, setCurrentNeighbors] = useState<Area[]>([]);
+
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const router = useRouter();
   const plantId = searchParams.get("plantId");
 
+  // fetch all areas & plants
   const { data: areas, isLoading: areasLoading } = useQuery("areas", () =>
     areaApi.getAll().then((res) => res.data)
   );
-
   const { data: plants, isLoading: plantsLoading } = useQuery("plants", () =>
     plantApi.getAll().then((res) => res.data)
   );
@@ -46,9 +51,8 @@ export default function AreasPage() {
       setFilters((prev) => ({ ...prev, plantId }));
     }
   }, [plantId]);
-
   const createMutation = useMutation(
-    (data: Omit<Area, "id" | "createdAt" | "updatedAt">) =>
+    (data: Omit<Area, "id" | "createdAt" | "updatedAt" | "neighbors">) =>
       areaApi.create(data),
     {
       onSuccess: () => {
@@ -59,7 +63,6 @@ export default function AreasPage() {
       },
     }
   );
-
   const updateMutation = useMutation(
     ({ id, data }: { id: string; data: Partial<Area> }) =>
       areaApi.update(id, data),
@@ -73,7 +76,6 @@ export default function AreasPage() {
       },
     }
   );
-
   const deleteMutation = useMutation((id: string) => areaApi.delete(id), {
     onSuccess: () => {
       queryClient.invalidateQueries("areas");
@@ -81,6 +83,53 @@ export default function AreasPage() {
     },
   });
 
+  // neighbor mutations
+  const addNbrMut = useMutation(
+    ({ areaId, neighborId }: { areaId: string; neighborId: string }) =>
+      areaApi.addNeighbor(areaId, neighborId),
+    {
+      onSuccess: () => queryClient.invalidateQueries("areas"),
+    }
+  );
+  const remNbrMut = useMutation(
+    ({ areaId, neighborId }: { areaId: string; neighborId: string }) =>
+      areaApi.removeNeighbor(areaId, neighborId),
+    {
+      onSuccess: () => queryClient.invalidateQueries("areas"),
+    }
+  );
+
+  // open neighbor modal & load existing neighbors
+  const openNbrModal = async (area: Area) => {
+    setCurrentArea(area);
+    const { data } = await areaApi.getNeighbors(area.id);
+    setCurrentNeighbors(data);
+    setNbrModalVisible(true);
+  };
+
+  const handleNbrSave = async (selectedIds: string[]) => {
+    if (!currentArea) return;
+    const oldIds = new Set(currentNeighbors.map((a) => a.id));
+    const newIds = new Set(selectedIds);
+
+    // adds
+    for (let id of selectedIds) {
+      if (!oldIds.has(id)) {
+        await addNbrMut.mutateAsync({ areaId: currentArea.id, neighborId: id });
+      }
+    }
+    // removes
+    for (let id of currentNeighbors.map((a) => a.id)) {
+      if (!newIds.has(id)) {
+        await remNbrMut.mutateAsync({ areaId: currentArea.id, neighborId: id });
+      }
+    }
+
+    message.success("Neighbors updated");
+    setNbrModalVisible(false);
+  };
+
+  // filtered view
   const filteredAreas = areas?.filter((area) => {
     const nameMatch = area.name
       .toLowerCase()
@@ -97,7 +146,7 @@ export default function AreasPage() {
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: "Location Description",
+      title: "Location",
       dataIndex: "locationDescription",
       key: "locationDescription",
     },
@@ -109,35 +158,42 @@ export default function AreasPage() {
         (a.plant?.name || "").localeCompare(b.plant?.name || ""),
     },
     {
+      title: "Neighbors",
+      key: "neighbors",
+      render: (_, rec) => (
+        <Button icon={<LinkOutlined />} onClick={() => openNbrModal(rec)}>
+          {rec.neighbors?.length || 0}
+        </Button>
+      ),
+    },
+    {
       title: "Actions",
       key: "actions",
-      render: (_, record) => (
+      render: (_, rec) => (
         <Space>
           <Button
             icon={<EditOutlined />}
             onClick={() => {
-              setEditingArea(record);
-              form.setFieldsValue(record);
+              setEditingArea(rec);
+              form.setFieldsValue(rec);
               setIsModalVisible(true);
             }}
           />
           <Button
             icon={<RightOutlined />}
-            onClick={() => {
-              router.push(`/equipment?areaId=${record.id}`);
-            }}
+            onClick={() => router.push(`/equipment?areaId=${rec.id}`)}
           >
             Equipment
           </Button>
           <Button
-            icon={<DeleteOutlined />}
             danger
-            onClick={() => {
+            icon={<DeleteOutlined />}
+            onClick={() =>
               Modal.confirm({
-                title: "Are you sure you want to delete this area?",
-                onOk: () => deleteMutation.mutate(record.id),
-              });
-            }}
+                title: "Delete this area?",
+                onOk: () => deleteMutation.mutate(rec.id),
+              })
+            }
           />
         </Space>
       ),
@@ -146,40 +202,40 @@ export default function AreasPage() {
 
   return (
     <div style={{ padding: 24, background: "#fff" }}>
-      <div style={{ marginBottom: 16 }}>
-        <Space size="large">
-          <Input
-            placeholder="Filter by name"
-            value={filters.name}
-            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            style={{ width: 200 }}
-          />
-          <Select
-            style={{ width: 200 }}
-            placeholder="Filter by plant"
-            allowClear
-            value={filters.plantId || undefined}
-            onChange={(value) => setFilters({ ...filters, plantId: value })}
-          >
-            {plants?.map((plant) => (
-              <Select.Option key={plant.id} value={plant.id}>
-                {plant.name}
-              </Select.Option>
-            ))}
-          </Select>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingArea(null);
-              form.resetFields();
-              setIsModalVisible(true);
-            }}
-          >
-            Add Area
-          </Button>
-        </Space>
-      </div>
+      <Space style={{ marginBottom: 16 }} size="large">
+        <Input
+          placeholder="Filter by name"
+          value={filters.name}
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, name: e.target.value }))
+          }
+          style={{ width: 200 }}
+        />
+        <Select
+          placeholder="Filter by plant"
+          allowClear
+          value={filters.plantId || undefined}
+          onChange={(v) => setFilters((f) => ({ ...f, plantId: v }))}
+          style={{ width: 200 }}
+        >
+          {plants?.map((p) => (
+            <Select.Option key={p.id} value={p.id}>
+              {p.name}
+            </Select.Option>
+          ))}
+        </Select>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => {
+            setEditingArea(null);
+            form.resetFields();
+            setIsModalVisible(true);
+          }}
+        >
+          Add Area
+        </Button>
+      </Space>
 
       <Table
         columns={columns}
@@ -193,66 +249,108 @@ export default function AreasPage() {
         }}
       />
 
+      {/* Create / Edit Area Modal */}
       <Modal
         title={editingArea ? "Edit Area" : "Add Area"}
         open={isModalVisible}
+        footer={null}
         onCancel={() => {
           setIsModalVisible(false);
-          form.resetFields();
           setEditingArea(null);
+          form.resetFields();
         }}
-        footer={null}
       >
         <Form
           form={form}
-          onFinish={(values) => {
+          layout="vertical"
+          onFinish={(vals) => {
             if (editingArea) {
-              updateMutation.mutate({ id: editingArea.id, data: values });
+              updateMutation.mutate({ id: editingArea.id, data: vals });
             } else {
-              createMutation.mutate(values);
+              createMutation.mutate(vals);
             }
           }}
-          layout="vertical"
         >
           <Form.Item
             name="name"
             label="Name"
-            rules={[{ required: true, message: "Please input the area name!" }]}
+            rules={[{ required: true, message: "Please input a name" }]}
           >
             <Input />
           </Form.Item>
-
           <Form.Item
             name="locationDescription"
             label="Location Description"
-            rules={[
-              {
-                required: true,
-                message: "Please input the location description!",
-              },
-            ]}
+            rules={[{ required: true, message: "Please input a description" }]}
           >
             <Input.TextArea />
           </Form.Item>
-
           <Form.Item
             name="plantId"
             label="Plant"
-            rules={[{ required: true, message: "Please select a plant!" }]}
+            rules={[{ required: true, message: "Please select a plant" }]}
           >
             <Select>
-              {plants?.map((plant) => (
-                <Select.Option key={plant.id} value={plant.id}>
-                  {plant.name}
+              {plants?.map((p) => (
+                <Select.Option key={p.id} value={p.id}>
+                  {p.name}
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
-
           <Form.Item>
-            <Button type="primary" htmlType="submit">
-              {editingArea ? "Update" : "Create"}
-            </Button>
+            <Space>
+              <Button onClick={() => setIsModalVisible(false)}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                {editingArea ? "Update" : "Create"}
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Manage Neighbors Modal */}
+      <Modal
+        title={`Manage Neighbors: ${currentArea?.name}`}
+        open={nbrModalVisible}
+        footer={null}
+        onCancel={() => setNbrModalVisible(false)}
+      >
+        <Form
+          layout="vertical"
+          initialValues={{
+            neighbors: currentNeighbors.map((a) => a.id),
+          }}
+          onFinish={(vals: any) => handleNbrSave(vals.neighbors)}
+        >
+          <Form.Item
+            name="neighbors"
+            label="Select Neighbor Areas"
+            rules={[
+              { required: true, message: "Pick at least one neighbor" },
+            ]}
+          >
+            <Select mode="multiple">
+              {areas
+                ?.filter((a) => a.id !== currentArea?.id)
+                .map((a) => (
+                  <Select.Option key={a.id} value={a.id}>
+                    {a.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Space>
+              <Button onClick={() => setNbrModalVisible(false)}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Save Neighbors
+              </Button>
+            </Space>
           </Form.Item>
         </Form>
       </Modal>
