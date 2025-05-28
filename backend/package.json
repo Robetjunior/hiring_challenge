@@ -13,7 +13,7 @@
     "test": "yarn run generate && jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "migration:generate": "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:generate \"src/migrations/CreateAreaNeighborsAndEquipmentAreas\" --dataSource \"src/config/database.ts\"",
+    "migration:generate": "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:generate",
     "migration:run": "ts-node-dev --respawn ./node_modules/typeorm/cli.js migration:run --dataSource \"src/config/database.ts\""
   },
   "keywords": [],
@@ -27,7 +27,7 @@
     "sqlite3": "^5.1.7",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.24"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
