@@ -5,6 +5,7 @@ import { EquipmentNotFoundError } from "../errors/EquipmentNotFoundError";
 import { InvalidForeignKeyError } from "../errors/InvalidForeignKeyError";
 import { InvalidDataError } from "../errors/InvalidDataError";
 import { DependencyExistsError } from "../errors/DependencyExistsError";
+import { CreateEquipmentDTO, UpdateEquipmentDTO } from "../dtos/EquipmentDTO";
 
 @Route("equipment")
 @Tags("Equipment")
@@ -36,10 +37,10 @@ export class EquipmentController extends Controller {
 
     @Post()
     public async createEquipment(
-        @Body() requestBody: Omit<Equipment, "id" | "createdAt" | "updatedAt"> & { areas?: string[] }
+        @Body() requestBody: CreateEquipmentDTO
     ): Promise<Equipment> {
         try {
-            return await this.equipmentService.create(requestBody);
+            return this.equipmentService.create(requestBody);
         } catch (error) {
             if (error instanceof InvalidForeignKeyError) {
                 this.setStatus(InvalidForeignKeyError.httpStatusCode);
@@ -56,7 +57,7 @@ export class EquipmentController extends Controller {
     @Put("{equipmentId}")
     public async updateEquipment(
         @Path() equipmentId: string,
-        @Body() requestBody: Partial<Omit<Equipment, "id" | "createdAt" | "updatedAt"> & { areas?: string[] }>
+        @Body() requestBody: UpdateEquipmentDTO
     ): Promise<Equipment> {
         try {
             return await this.equipmentService.update(equipmentId, requestBody);

@@ -1,6 +1,6 @@
 import { Area } from "../models/Area";
 import { DatabaseContext } from "../config/database-context";
-import { Repository, QueryFailedError } from "typeorm";
+import { Repository } from "typeorm";
 import { AreaNotFoundError } from "../errors/AreaNotFoundError";
 import { InvalidForeignKeyError } from "../errors/InvalidForeignKeyError";
 import { InvalidDataError } from "../errors/InvalidDataError";
