@@ -8,6 +8,8 @@ import { PlantController } from './../controllers/PlantController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { PartController } from './../controllers/PartController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { MaintenanceController } from './../controllers/MaintenanceController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { EquipmentController } from './../controllers/EquipmentController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AreaController } from './../controllers/AreaController';
@@ -27,6 +29,7 @@ const models: TsoaRoute.Models = {
             "areas": {"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
+            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -43,6 +46,7 @@ const models: TsoaRoute.Models = {
             "neighbors": {"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
+            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -66,6 +70,7 @@ const models: TsoaRoute.Models = {
             "parts": {"dataType":"array","array":{"dataType":"refObject","ref":"Part"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
+            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -83,6 +88,7 @@ const models: TsoaRoute.Models = {
             "equipmentId": {"dataType":"string","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
+            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -99,7 +105,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"type":{"ref":"PartType","required":true},"manufacturer":{"dataType":"string","required":true},"serialNumber":{"dataType":"string","required":true},"installationDate":{"dataType":"datetime","required":true},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string","required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"type":{"ref":"PartType","required":true},"manufacturer":{"dataType":"string","required":true},"serialNumber":{"dataType":"string","required":true},"installationDate":{"dataType":"datetime","required":true},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string","required":true},"maintenances":{"dataType":"any","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Omit_Part.id-or-createdAt-or-updatedAt_": {
@@ -109,7 +115,62 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_Omit_Part.id-or-createdAt-or-updatedAt__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"type":{"ref":"PartType"},"manufacturer":{"dataType":"string"},"serialNumber":{"dataType":"string"},"installationDate":{"dataType":"datetime"},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"type":{"ref":"PartType"},"manufacturer":{"dataType":"string"},"serialNumber":{"dataType":"string"},"installationDate":{"dataType":"datetime"},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string"},"maintenances":{"dataType":"any"}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Maintenance": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "title": {"dataType":"string","required":true},
+            "dueDate": {"dataType":"datetime","required":true},
+            "intervalMonths": {"dataType":"double"},
+            "fixedDate": {"dataType":"datetime"},
+            "baseType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["piece"]},{"dataType":"enum","enums":["equipment"]}],"required":true},
+            "part": {"ref":"Part","required":true},
+            "partId": {"dataType":"string","required":true},
+            "equipment": {"ref":"Equipment","required":true},
+            "equipmentId": {"dataType":"string","required":true},
+            "area": {"ref":"Area","required":true},
+            "areaId": {"dataType":"string","required":true},
+            "plant": {"ref":"Plant","required":true},
+            "plantId": {"dataType":"string","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CreateMaintenanceDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "title": {"dataType":"string","required":true},
+            "fixedDate": {"dataType":"string"},
+            "intervalMonths": {"dataType":"double"},
+            "dueDate": {"dataType":"string"},
+            "partId": {"dataType":"string","required":true},
+            "equipmentId": {"dataType":"string","required":true},
+            "areaId": {"dataType":"string","required":true},
+            "plantId": {"dataType":"string","required":true},
+            "baseType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["piece"]},{"dataType":"enum","enums":["equipment"]}]},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UpdateMaintenanceDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "title": {"dataType":"string"},
+            "fixedDate": {"dataType":"string"},
+            "intervalMonths": {"dataType":"double"},
+            "dueDate": {"dataType":"string"},
+            "partId": {"dataType":"string"},
+            "equipmentId": {"dataType":"string"},
+            "areaId": {"dataType":"string"},
+            "plantId": {"dataType":"string"},
+            "baseType": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["piece"]},{"dataType":"enum","enums":["equipment"]}]},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CreateEquipmentDTO": {
@@ -452,6 +513,185 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'deletePart',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMaintenanceController_getAll: Record<string, TsoaRoute.ParameterSchema> = {
+        };
+        app.get('/maintenance',
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController)),
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController.prototype.getAll)),
+
+            async function MaintenanceController_getAll(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMaintenanceController_getAll, request, response });
+
+                const controller = new MaintenanceController();
+
+              await templateService.apiHandler({
+                methodName: 'getAll',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMaintenanceController_getUpcoming: Record<string, TsoaRoute.ParameterSchema> = {
+        };
+        app.get('/maintenance/upcoming',
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController)),
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController.prototype.getUpcoming)),
+
+            async function MaintenanceController_getUpcoming(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMaintenanceController_getUpcoming, request, response });
+
+                const controller = new MaintenanceController();
+
+              await templateService.apiHandler({
+                methodName: 'getUpcoming',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMaintenanceController_getById: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+        };
+        app.get('/maintenance/:id',
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController)),
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController.prototype.getById)),
+
+            async function MaintenanceController_getById(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMaintenanceController_getById, request, response });
+
+                const controller = new MaintenanceController();
+
+              await templateService.apiHandler({
+                methodName: 'getById',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMaintenanceController_create: Record<string, TsoaRoute.ParameterSchema> = {
+                dto: {"in":"body","name":"dto","required":true,"ref":"CreateMaintenanceDTO"},
+        };
+        app.post('/maintenance',
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController)),
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController.prototype.create)),
+
+            async function MaintenanceController_create(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMaintenanceController_create, request, response });
+
+                const controller = new MaintenanceController();
+
+              await templateService.apiHandler({
+                methodName: 'create',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMaintenanceController_update: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+                dto: {"in":"body","name":"dto","required":true,"ref":"UpdateMaintenanceDTO"},
+        };
+        app.put('/maintenance/:id',
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController)),
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController.prototype.update)),
+
+            async function MaintenanceController_update(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMaintenanceController_update, request, response });
+
+                const controller = new MaintenanceController();
+
+              await templateService.apiHandler({
+                methodName: 'update',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsMaintenanceController_delete: Record<string, TsoaRoute.ParameterSchema> = {
+                id: {"in":"path","name":"id","required":true,"dataType":"string"},
+        };
+        app.delete('/maintenance/:id',
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController)),
+            ...(fetchMiddlewares<RequestHandler>(MaintenanceController.prototype.delete)),
+
+            async function MaintenanceController_delete(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsMaintenanceController_delete, request, response });
+
+                const controller = new MaintenanceController();
+
+              await templateService.apiHandler({
+                methodName: 'delete',
                 controller,
                 response,
                 next,
