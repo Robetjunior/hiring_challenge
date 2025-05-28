@@ -1,3 +1,4 @@
+import { UpdateMaintenanceDTO } from '@/dtos/MaintenanceDTO';
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -39,6 +40,24 @@ export interface Equipment {
   area?: Area;
   // nova multi-área:
   areas?: Area[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Maintenance {
+  id: string;
+  title: string;
+  dueDate: string;
+  intervalMonths?: number;
+  fixedDate?: string;
+  partId: string;
+  part?: Part;
+  equipmentId: string;
+  equipment?: Equipment;
+  areaId: string;
+  area?: Area;
+  plantId: string;
+  plant?: Plant;
   createdAt: string;
   updatedAt: string;
 }
@@ -105,3 +124,17 @@ export const partApi = {
     api.put<Part>(`/parts/${id}`, data),
   delete: (id: string) => api.delete(`/parts/${id}`),
 }; 
+
+export const maintenanceApi = {
+  getAll: () => api.get<Maintenance[]>('/maintenance'),
+  getUpcoming: () => api.get<Maintenance[]>("/maintenance/upcoming"),
+  getById: (id: string) => api.get<Maintenance>(`/maintenance/${id}`),
+  create: (data: Omit<Maintenance, 'id'|'createdAt'|'updatedAt'|'dueDate'> & {
+    dueDate?: string;
+    fixedDate?: string;
+    intervalMonths?: number;
+  }) => api.post<Maintenance>('/maintenance', data),
+  update: (id: string, dto: UpdateMaintenanceDTO) =>
+    api.put<Maintenance>(`/maintenance/${id}`, dto),
+  delete: (id: string) => api.delete<void>(`/maintenance/${id}`),
+};
