@@ -64,6 +64,25 @@ export default function EquipmentPage() {
     }
   }, [areas]);
 
+  useEffect(() => {
+    if (isModalVisible && editingEquipment) {
+      const selected: string[] = form.getFieldValue("areas") || [];
+      // se tiver exatamente uma área selecionada, filtra apenas ela + vizinhos
+      if (selected.length === 1) {
+        areaApi.getNeighbors(selected[0]).then((res) => {
+          const neighIds = res.data.map((a) => a.id);
+          const keep = new Set<string>([selected[0], ...neighIds]);
+          setFilteredOptions(
+            (allOptions || []).filter((o) => keep.has(o.value as string))
+          );
+        });
+      } else {
+        // em qualquer outro caso, exibe tudo
+        setFilteredOptions(allOptions || []);
+      }
+    }
+  }, [isModalVisible, editingEquipment, allOptions, form]);
+
   // Se veio ?areaId na URL, já filtra a coluna
   useEffect(() => {
     if (initialAreaId) {
@@ -163,12 +182,17 @@ export default function EquipmentPage() {
           <Button
             icon={<EditOutlined />}
             onClick={() => {
+              // 1) resetamos todas as opções
+              setFilteredOptions(allOptions);
+              // 2) marcamos qual registro vamos editar
               setEditingEquipment(record);
+              // 3) pré-enchemos o form
               form.setFieldsValue({
                 ...record,
-                areas: record.areas?.map((a) => a.id) || [],
+                areas: record.areas?.map(a => a.id) || [],
                 initialOperationsDate: dayjs(record.initialOperationsDate),
               });
+              // 4) abrimos o modal
               setIsModalVisible(true);
             }}
           />
@@ -259,12 +283,41 @@ export default function EquipmentPage() {
           <Form.Item name="name" label="Name" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="manufacturer" label="Manufacturer" rules={[{ required: true }]}><Input /></Form.Item>
           <Form.Item name="serialNumber" label="Serial Number" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="initialOperationsDate" label="Initial Ops Date" rules={[{ required: true }]}><DatePicker style={{ width: "100%" }} /></Form.Item>
-          <Form.Item name="areas" label="Áreas" rules={[{ required: true, message: "Selecione ao menos uma área" }]}>
+          <Form.Item name="initialOperationsDate" label="Initial Ops Date" rules={[{ required: true }]}>
+            <DatePicker
+              style={{ width: "100%" }}
+              format="DD-MM-YYYY"
+              disabledDate={(current) =>
+                current && current.startOf("day") < dayjs().startOf("day")
+              }
+            />
+          </Form.Item>
+          <Form.Item
+            name="areas"
+            label="Áreas"
+            rules={[{ required: true, message: "Selecione ao menos uma área" }]}
+          >
             <Select
               mode="multiple"
               placeholder="Escolha áreas"
               options={filteredOptions}
+              // 1) Ao abrir o dropdown:
+              onDropdownVisibleChange={async (open) => {
+                if (!open) return;
+                const selected: string[] = form.getFieldValue("areas") || [];
+                // Se tiver exatamente uma selecionada, só mantém ela + vizinhos
+                if (selected.length === 1) {
+                  const neigh = await areaApi
+                    .getNeighbors(selected[0])
+                    .then((r) => r.data.map((a) => a.id));
+                  const keep = new Set<string>([...selected, ...neigh]);
+                  setFilteredOptions((allOptions || []).filter(o => keep.has(o.value as string)));
+                } else {
+                  // Senão, volta ao conjunto completo
+                  setFilteredOptions(allOptions);
+                }
+              }}
+              // 2) A cada mudança de seleção, já atualiza o filtro também
               onChange={async (selectedIds: string[]) => {
                 if (selectedIds.length === 0) {
                   setFilteredOptions(allOptions);
@@ -280,7 +333,9 @@ export default function EquipmentPage() {
                   allNbrsArrays[0] || []
                 );
                 const keepIds = new Set<string>([...selectedIds, ...commonNbrs]);
-                setFilteredOptions((allOptions || []).filter((o) => keepIds.has(o.value as string)));
+                setFilteredOptions((allOptions || []).filter((o) =>
+                  keepIds.has(o.value as string)
+                ));
               }}
             />
           </Form.Item>
