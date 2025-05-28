@@ -7,6 +7,7 @@ import {
   AppstoreOutlined,
   ToolOutlined,
   SettingOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
@@ -41,9 +42,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: "Equipment",
     },
     {
-      key: "/parts",
+    key: "/parts",
       icon: <SettingOutlined />,
       label: "Parts",
+    },
+    {
+      key: "/maintenance",
+      icon: <CalendarOutlined />,
+      label: "Maintenance",
+    },
+    {
+      key: "/maintenance/calendar",
+      icon: <CalendarOutlined />,
+      label: "Calendário",
     },
   ];
 
