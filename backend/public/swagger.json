@@ -92,14 +92,16 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          }
+          },
+          "maintenances": {}
         },
         "required": [
           "id",
           "name",
           "address",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "maintenances"
         ],
         "type": "object",
         "additionalProperties": false
@@ -140,7 +142,8 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          }
+          },
+          "maintenances": {}
         },
         "required": [
           "id",
@@ -148,7 +151,8 @@
           "locationDescription",
           "plantId",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "maintenances"
         ],
         "type": "object",
         "additionalProperties": false
@@ -205,7 +209,8 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          }
+          },
+          "maintenances": {}
         },
         "required": [
           "id",
@@ -215,7 +220,8 @@
           "initialOperationsDate",
           "areaId",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "maintenances"
         ],
         "type": "object",
         "additionalProperties": false
@@ -254,7 +260,8 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          }
+          },
+          "maintenances": {}
         },
         "required": [
           "id",
@@ -265,7 +272,8 @@
           "installationDate",
           "equipmentId",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "maintenances"
         ],
         "type": "object",
         "additionalProperties": false
@@ -321,7 +329,8 @@
           },
           "equipmentId": {
             "type": "string"
-          }
+          },
+          "maintenances": {}
         },
         "required": [
           "name",
@@ -329,7 +338,8 @@
           "manufacturer",
           "serialNumber",
           "installationDate",
-          "equipmentId"
+          "equipmentId",
+          "maintenances"
         ],
         "type": "object",
         "description": "From T, pick a set of properties whose keys are in the union K"
@@ -361,10 +371,173 @@
           },
           "equipmentId": {
             "type": "string"
-          }
+          },
+          "maintenances": {}
         },
         "type": "object",
         "description": "Make all properties in T optional"
+      },
+      "Maintenance": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "intervalMonths": {
+            "type": "number",
+            "format": "double"
+          },
+          "fixedDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "baseType": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "equipment"
+            ]
+          },
+          "part": {
+            "$ref": "#/components/schemas/Part"
+          },
+          "partId": {
+            "type": "string"
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/Equipment"
+          },
+          "equipmentId": {
+            "type": "string"
+          },
+          "area": {
+            "$ref": "#/components/schemas/Area"
+          },
+          "areaId": {
+            "type": "string"
+          },
+          "plant": {
+            "$ref": "#/components/schemas/Plant"
+          },
+          "plantId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "dueDate",
+          "baseType",
+          "part",
+          "partId",
+          "equipment",
+          "equipmentId",
+          "area",
+          "areaId",
+          "plant",
+          "plantId",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CreateMaintenanceDTO": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "fixedDate": {
+            "type": "string"
+          },
+          "intervalMonths": {
+            "type": "number",
+            "format": "double"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "partId": {
+            "type": "string"
+          },
+          "equipmentId": {
+            "type": "string"
+          },
+          "areaId": {
+            "type": "string"
+          },
+          "plantId": {
+            "type": "string"
+          },
+          "baseType": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "equipment"
+            ]
+          }
+        },
+        "required": [
+          "title",
+          "partId",
+          "equipmentId",
+          "areaId",
+          "plantId"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UpdateMaintenanceDTO": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "fixedDate": {
+            "type": "string"
+          },
+          "intervalMonths": {
+            "type": "number",
+            "format": "double"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "partId": {
+            "type": "string"
+          },
+          "equipmentId": {
+            "type": "string"
+          },
+          "areaId": {
+            "type": "string"
+          },
+          "plantId": {
+            "type": "string"
+          },
+          "baseType": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "equipment"
+            ]
+          }
+        },
+        "type": "object",
+        "additionalProperties": false
       },
       "CreateEquipmentDTO": {
         "properties": {
@@ -818,6 +991,214 @@
           {
             "in": "path",
             "name": "partId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/maintenance": {
+      "get": {
+        "operationId": "GetAll",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Maintenance"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        },
+        "tags": [
+          "Maintenance"
+        ],
+        "security": [],
+        "parameters": []
+      },
+      "post": {
+        "operationId": "Create",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Maintenance"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        },
+        "tags": [
+          "Maintenance"
+        ],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMaintenanceDTO"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/maintenance/upcoming": {
+      "get": {
+        "operationId": "GetUpcoming",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Maintenance"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        },
+        "tags": [
+          "Maintenance"
+        ],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/maintenance/{id}": {
+      "get": {
+        "operationId": "GetById",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Maintenance"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "tags": [
+          "Maintenance"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "Update",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Maintenance"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        },
+        "tags": [
+          "Maintenance"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMaintenanceDTO"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        },
+        "tags": [
+          "Maintenance"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "string"
