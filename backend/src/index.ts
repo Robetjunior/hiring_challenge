@@ -16,7 +16,16 @@ app.use(express.json());
 
 // Swagger documentation
 const swaggerDocument = swaggerJson as any;
-app.use('/docs', swaggerUi.serve as any);
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument, {
+    explorer: true,
+    swaggerOptions: {
+      docExpansion: "none",
+    },
+  })
+);
 app.get('/docs', swaggerUi.setup(swaggerDocument) as any);
 
 // Register TSOA routes

@@ -13,20 +13,24 @@ RegisterRoutes(app);
 
 // Error handling middleware
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    console.error(err);
-    
+    const status = err.status ?? err.statusCode ?? err.httpStatusCode;
+
+    if (!status || status >= 500) {
+        console.error(err);
+    }
+
     if (err instanceof ValidateError) {
         return res.status(400).json({
             message: "Validation Failed",
-            details: err?.fields
+            details: err.fields,
         });
     }
 
-    if (err.status === 404) {
+    if (status === 404) {
         return res.status(404).json({ message: err.message });
     }
 
-    if (err.status === 400) {
+    if (status === 400) {
         return res.status(400).json({ message: err.message });
     }
 

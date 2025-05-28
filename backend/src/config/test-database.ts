@@ -8,7 +8,7 @@ export const TestDataSource = new DataSource({
     type: "sqlite",
     database: ":memory:",
     synchronize: true,
-    logging: true,
+    logging: false,
     entities: [Plant, Area, Equipment, Part],
     migrations: [],
     subscribers: [],

@@ -112,19 +112,28 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"type":{"ref":"PartType"},"manufacturer":{"dataType":"string"},"serialNumber":{"dataType":"string"},"installationDate":{"dataType":"datetime"},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_Equipment.Exclude_keyofEquipment.id-or-createdAt-or-updatedAt__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"manufacturer":{"dataType":"string","required":true},"serialNumber":{"dataType":"string","required":true},"initialOperationsDate":{"dataType":"datetime","required":true},"area":{"ref":"Area"},"areaId":{"dataType":"string","required":true},"areas":{"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},"parts":{"dataType":"array","array":{"dataType":"refObject","ref":"Part"}}},"validators":{}},
+    "CreateEquipmentDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "manufacturer": {"dataType":"string","required":true},
+            "serialNumber": {"dataType":"string","required":true},
+            "initialOperationsDate": {"dataType":"datetime","required":true},
+            "areas": {"dataType":"array","array":{"dataType":"string"}},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Omit_Equipment.id-or-createdAt-or-updatedAt_": {
-        "dataType": "refAlias",
-        "type": {"ref":"Pick_Equipment.Exclude_keyofEquipment.id-or-createdAt-or-updatedAt__","validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Partial_Omit_Equipment.id-or-createdAt-or-updatedAt_-and-_areas_63_-string-Array__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"manufacturer":{"dataType":"string"},"serialNumber":{"dataType":"string"},"initialOperationsDate":{"dataType":"datetime"},"area":{"ref":"Area"},"areaId":{"dataType":"string"},"areas":{"dataType":"intersection","subSchemas":[{"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},{"dataType":"array","array":{"dataType":"string"}}]},"parts":{"dataType":"array","array":{"dataType":"refObject","ref":"Part"}}},"validators":{}},
+    "UpdateEquipmentDTO": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string"},
+            "manufacturer": {"dataType":"string"},
+            "serialNumber": {"dataType":"string"},
+            "initialOperationsDate": {"dataType":"datetime"},
+            "areas": {"dataType":"array","array":{"dataType":"string"}},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Area.name-or-locationDescription-or-plantId_": {
@@ -514,7 +523,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsEquipmentController_createEquipment: Record<string, TsoaRoute.ParameterSchema> = {
-                requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"intersection","subSchemas":[{"ref":"Omit_Equipment.id-or-createdAt-or-updatedAt_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"areas":{"dataType":"array","array":{"dataType":"string"}}}}]},
+                requestBody: {"in":"body","name":"requestBody","required":true,"ref":"CreateEquipmentDTO"},
         };
         app.post('/equipment',
             ...(fetchMiddlewares<RequestHandler>(EquipmentController)),
@@ -545,7 +554,7 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsEquipmentController_updateEquipment: Record<string, TsoaRoute.ParameterSchema> = {
                 equipmentId: {"in":"path","name":"equipmentId","required":true,"dataType":"string"},
-                requestBody: {"in":"body","name":"requestBody","required":true,"ref":"Partial_Omit_Equipment.id-or-createdAt-or-updatedAt_-and-_areas_63_-string-Array__"},
+                requestBody: {"in":"body","name":"requestBody","required":true,"ref":"UpdateEquipmentDTO"},
         };
         app.put('/equipment/:equipmentId',
             ...(fetchMiddlewares<RequestHandler>(EquipmentController)),
