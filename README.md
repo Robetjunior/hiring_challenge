@@ -1,10 +1,11 @@
+
 # Opwell Asset Management System
 
 A full-stack application for managing industrial assets, built with Node.js, Express, TypeORM, and Next.js.
 
 > **Note**: This project serves as a technical challenge for candidates applying to Opwell.
 
-# Introduction
+## Introduction
 
 Opwell is a company focused on empowering the industrial sector through advanced technology and AI-driven solutions. One of its core services is asset management, which involves maintaining an accurate and structured inventory of industrial facilities, equipment, and parts, along with the necessary documentation for effective maintenance and operation.
 
@@ -97,6 +98,7 @@ The API documentation is available at `/docs` when the server is running. It pro
    ```
 
 4. Start the production server:
+
    ```bash
    yarn start
    ```
@@ -157,6 +159,7 @@ frontend/
    ```
 
 4. Start the production server:
+
    ```bash
    yarn start
    ```
@@ -166,7 +169,7 @@ frontend/
 ### Plant
 
 | Field     | Type     | Description           |
-| --------- | -------- | --------------------- |
+|-----------|----------|-----------------------|
 | id        | UUID     | Primary key           |
 | name      | String   | Name of the plant     |
 | address   | String   | Physical address      |
@@ -177,7 +180,7 @@ frontend/
 ### Area
 
 | Field               | Type     | Description                |
-| ------------------- | -------- | -------------------------- |
+|---------------------|----------|----------------------------|
 | id                  | UUID     | Primary key                |
 | name                | String   | Name of the area           |
 | locationDescription | String   | Area description           |
@@ -190,7 +193,7 @@ frontend/
 ### Equipment
 
 | Field                 | Type     | Description              |
-| --------------------- | -------- | ------------------------ |
+|-----------------------|----------|--------------------------|
 | id                    | UUID     | Primary key              |
 | name                  | String   | Name of the equipment    |
 | manufacturer          | String   | Equipment manufacturer   |
@@ -205,7 +208,7 @@ frontend/
 ### Part
 
 | Field            | Type     | Description                            |
-| ---------------- | -------- | -------------------------------------- |
+|------------------|----------|----------------------------------------|
 | id               | UUID     | Primary key                            |
 | name             | String   | Name of the part                       |
 | type             | Enum     | Part type (IT/OIL_AND_GAS/AGRICULTURE) |
