@@ -85,6 +85,12 @@
             },
             "type": "array"
           },
+          "maintenances": {
+            "items": {
+              "$ref": "#/components/schemas/Maintenance"
+            },
+            "type": "array"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -92,16 +98,14 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "maintenances": {}
+          }
         },
         "required": [
           "id",
           "name",
           "address",
           "createdAt",
-          "updatedAt",
-          "maintenances"
+          "updatedAt"
         ],
         "type": "object",
         "additionalProperties": false
@@ -135,6 +139,12 @@
             },
             "type": "array"
           },
+          "maintenances": {
+            "items": {
+              "$ref": "#/components/schemas/Maintenance"
+            },
+            "type": "array"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -142,8 +152,7 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "maintenances": {}
+          }
         },
         "required": [
           "id",
@@ -151,8 +160,7 @@
           "locationDescription",
           "plantId",
           "createdAt",
-          "updatedAt",
-          "maintenances"
+          "updatedAt"
         ],
         "type": "object",
         "additionalProperties": false
@@ -202,6 +210,12 @@
             },
             "type": "array"
           },
+          "maintenances": {
+            "items": {
+              "$ref": "#/components/schemas/Maintenance"
+            },
+            "type": "array"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -209,8 +223,7 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "maintenances": {}
+          }
         },
         "required": [
           "id",
@@ -220,8 +233,7 @@
           "initialOperationsDate",
           "areaId",
           "createdAt",
-          "updatedAt",
-          "maintenances"
+          "updatedAt"
         ],
         "type": "object",
         "additionalProperties": false
@@ -253,6 +265,12 @@
           "equipmentId": {
             "type": "string"
           },
+          "maintenances": {
+            "items": {
+              "$ref": "#/components/schemas/Maintenance"
+            },
+            "type": "array"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -260,8 +278,7 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "maintenances": {}
+          }
         },
         "required": [
           "id",
@@ -272,110 +289,10 @@
           "installationDate",
           "equipmentId",
           "createdAt",
-          "updatedAt",
-          "maintenances"
+          "updatedAt"
         ],
         "type": "object",
         "additionalProperties": false
-      },
-      "Pick_Plant.name-or-address_": {
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name",
-          "address"
-        ],
-        "type": "object",
-        "description": "From T, pick a set of properties whose keys are in the union K"
-      },
-      "Partial_Pick_Plant.name-or-address__": {
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          }
-        },
-        "type": "object",
-        "description": "Make all properties in T optional"
-      },
-      "Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__": {
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/PartType"
-          },
-          "manufacturer": {
-            "type": "string"
-          },
-          "serialNumber": {
-            "type": "string"
-          },
-          "installationDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "equipment": {
-            "$ref": "#/components/schemas/Equipment"
-          },
-          "equipmentId": {
-            "type": "string"
-          },
-          "maintenances": {}
-        },
-        "required": [
-          "name",
-          "type",
-          "manufacturer",
-          "serialNumber",
-          "installationDate",
-          "equipmentId",
-          "maintenances"
-        ],
-        "type": "object",
-        "description": "From T, pick a set of properties whose keys are in the union K"
-      },
-      "Omit_Part.id-or-createdAt-or-updatedAt_": {
-        "$ref": "#/components/schemas/Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__",
-        "description": "Construct a type with the properties of T except for those in type K."
-      },
-      "Partial_Omit_Part.id-or-createdAt-or-updatedAt__": {
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/PartType"
-          },
-          "manufacturer": {
-            "type": "string"
-          },
-          "serialNumber": {
-            "type": "string"
-          },
-          "installationDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "equipment": {
-            "$ref": "#/components/schemas/Equipment"
-          },
-          "equipmentId": {
-            "type": "string"
-          },
-          "maintenances": {}
-        },
-        "type": "object",
-        "description": "Make all properties in T optional"
       },
       "Maintenance": {
         "properties": {
@@ -455,6 +372,114 @@
         ],
         "type": "object",
         "additionalProperties": false
+      },
+      "Pick_Plant.name-or-address_": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "address"
+        ],
+        "type": "object",
+        "description": "From T, pick a set of properties whose keys are in the union K"
+      },
+      "Partial_Pick_Plant.name-or-address__": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "description": "Make all properties in T optional"
+      },
+      "Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__": {
+        "properties": {
+          "equipment": {
+            "$ref": "#/components/schemas/Equipment"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PartType"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "serialNumber": {
+            "type": "string"
+          },
+          "installationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "equipmentId": {
+            "type": "string"
+          },
+          "maintenances": {
+            "items": {
+              "$ref": "#/components/schemas/Maintenance"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "manufacturer",
+          "serialNumber",
+          "installationDate",
+          "equipmentId"
+        ],
+        "type": "object",
+        "description": "From T, pick a set of properties whose keys are in the union K"
+      },
+      "Omit_Part.id-or-createdAt-or-updatedAt_": {
+        "$ref": "#/components/schemas/Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__",
+        "description": "Construct a type with the properties of T except for those in type K."
+      },
+      "Partial_Omit_Part.id-or-createdAt-or-updatedAt__": {
+        "properties": {
+          "equipment": {
+            "$ref": "#/components/schemas/Equipment"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PartType"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "serialNumber": {
+            "type": "string"
+          },
+          "installationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "equipmentId": {
+            "type": "string"
+          },
+          "maintenances": {
+            "items": {
+              "$ref": "#/components/schemas/Maintenance"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object",
+        "description": "Make all properties in T optional"
       },
       "CreateMaintenanceDTO": {
         "properties": {
