@@ -1,46 +1,54 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Equipment } from "./Equipment";
+import { Maintenance } from "./Maintenance";
 
 export enum PartType {
-    ELECTRIC = "electric",
-    ELECTRONIC = "electronic",
-    MECHANICAL = "mechanical",
-    HYDRAULICAL = "hydraulical"
+  ELECTRIC = "electric",
+  ELECTRONIC = "electronic",
+  MECHANICAL = "mechanical",
+  HYDRAULICAL = "hydraulical",
 }
 
 @Entity()
 export class Part {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
-    @Column()
-    name!: string;
+  @Column()
+  name!: string;
 
-    @Column({
-        type: "varchar",
-        default: PartType.MECHANICAL
-    })
-    type!: PartType;
+  @Column({ type: "varchar", default: PartType.MECHANICAL })
+  type!: PartType;
 
-    @Column()
-    manufacturer!: string;
+  @Column()
+  manufacturer!: string;
 
-    @Column()
-    serialNumber!: string;
+  @Column()
+  serialNumber!: string;
 
-    @Column({ type: "date" })
-    installationDate!: Date;
+  @Column({ type: "date" })
+  installationDate!: Date;
 
-    @ManyToOne(() => Equipment, equipment => equipment.parts)
-    equipment?: Equipment;
+  @ManyToOne(() => Equipment, (eq) => eq.parts)
+  equipment?: Equipment;
 
-    @Column()
-    equipmentId!: string;
+  @Column()
+  equipmentId!: string;
 
-    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
-    createdAt!: Date;
+  @OneToMany(() => Maintenance, (m) => m.part)
+  maintenances?: Maintenance[];
 
-    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
-    updatedAt!: Date;
-    maintenances: any;
-} 
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+}

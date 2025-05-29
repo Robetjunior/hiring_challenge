@@ -1,24 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Area } from "./Area";
+import { Maintenance } from "./Maintenance";
 
 @Entity()
 export class Plant {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
-    @Column()
-    name!: string;
+  @Column()
+  name!: string;
 
-    @Column()
-    address!: string;
+  @Column()
+  address!: string;
 
-    @OneToMany(() => Area, area => area.plant)
-    areas?: Area[];
+  @OneToMany(() => Area, (area) => area.plant)
+  areas?: Area[];
 
-    @CreateDateColumn()
-    createdAt!: Date;
+  @OneToMany(() => Maintenance, (m) => m.plant)
+  maintenances?: Maintenance[];
 
-    @UpdateDateColumn()
-    updatedAt!: Date;
-    maintenances: any;
-} 
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+}
