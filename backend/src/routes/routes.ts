@@ -27,9 +27,9 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "address": {"dataType":"string","required":true},
             "areas": {"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},
+            "maintenances": {"dataType":"array","array":{"dataType":"refObject","ref":"Maintenance"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
-            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -44,9 +44,9 @@ const models: TsoaRoute.Models = {
             "plantId": {"dataType":"string","required":true},
             "equipment": {"dataType":"array","array":{"dataType":"refObject","ref":"Equipment"}},
             "neighbors": {"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},
+            "maintenances": {"dataType":"array","array":{"dataType":"refObject","ref":"Maintenance"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
-            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -68,9 +68,9 @@ const models: TsoaRoute.Models = {
             "areaId": {"dataType":"string","required":true},
             "areas": {"dataType":"array","array":{"dataType":"refObject","ref":"Area"}},
             "parts": {"dataType":"array","array":{"dataType":"refObject","ref":"Part"}},
+            "maintenances": {"dataType":"array","array":{"dataType":"refObject","ref":"Maintenance"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
-            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
     },
@@ -86,36 +86,11 @@ const models: TsoaRoute.Models = {
             "installationDate": {"dataType":"datetime","required":true},
             "equipment": {"ref":"Equipment"},
             "equipmentId": {"dataType":"string","required":true},
+            "maintenances": {"dataType":"array","array":{"dataType":"refObject","ref":"Maintenance"}},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
-            "maintenances": {"dataType":"any","required":true},
         },
         "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_Plant.name-or-address_": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"address":{"dataType":"string","required":true}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Partial_Pick_Plant.name-or-address__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"address":{"dataType":"string"}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"type":{"ref":"PartType","required":true},"manufacturer":{"dataType":"string","required":true},"serialNumber":{"dataType":"string","required":true},"installationDate":{"dataType":"datetime","required":true},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string","required":true},"maintenances":{"dataType":"any","required":true}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Omit_Part.id-or-createdAt-or-updatedAt_": {
-        "dataType": "refAlias",
-        "type": {"ref":"Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__","validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Partial_Omit_Part.id-or-createdAt-or-updatedAt__": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"type":{"ref":"PartType"},"manufacturer":{"dataType":"string"},"serialNumber":{"dataType":"string"},"installationDate":{"dataType":"datetime"},"equipment":{"ref":"Equipment"},"equipmentId":{"dataType":"string"},"maintenances":{"dataType":"any"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Maintenance": {
@@ -139,6 +114,31 @@ const models: TsoaRoute.Models = {
             "updatedAt": {"dataType":"datetime","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Plant.name-or-address_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"address":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Partial_Pick_Plant.name-or-address__": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"address":{"dataType":"string"}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"equipment":{"ref":"Equipment"},"name":{"dataType":"string","required":true},"type":{"ref":"PartType","required":true},"manufacturer":{"dataType":"string","required":true},"serialNumber":{"dataType":"string","required":true},"installationDate":{"dataType":"datetime","required":true},"equipmentId":{"dataType":"string","required":true},"maintenances":{"dataType":"array","array":{"dataType":"refObject","ref":"Maintenance"}}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Omit_Part.id-or-createdAt-or-updatedAt_": {
+        "dataType": "refAlias",
+        "type": {"ref":"Pick_Part.Exclude_keyofPart.id-or-createdAt-or-updatedAt__","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Partial_Omit_Part.id-or-createdAt-or-updatedAt__": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"equipment":{"ref":"Equipment"},"name":{"dataType":"string"},"type":{"ref":"PartType"},"manufacturer":{"dataType":"string"},"serialNumber":{"dataType":"string"},"installationDate":{"dataType":"datetime"},"equipmentId":{"dataType":"string"},"maintenances":{"dataType":"array","array":{"dataType":"refObject","ref":"Maintenance"}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CreateMaintenanceDTO": {
