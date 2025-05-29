@@ -5,7 +5,6 @@ import { Maintenance } from "../models/Maintenance";
 import { MaintenanceService } from "../services/MaintenanceService";
 import { CreateMaintenanceDTO, UpdateMaintenanceDTO } from "../dtos/MaintenanceDTO";
 import { NotFoundError } from "../errors/NotFoundError";
-import { InvalidDataError } from "../errors/InvalidDataError";
 
 @Route("maintenance")
 @Tags("Maintenance")
@@ -29,6 +28,7 @@ export class MaintenanceController extends Controller {
     } catch (err) {
       if (err instanceof NotFoundError) {
         this.setStatus(404);
+        ;(err as any).status = 404;
         throw err;
       }
       throw err;
@@ -40,8 +40,9 @@ export class MaintenanceController extends Controller {
     try {
       return await this.svc.create(dto);
     } catch (err) {
-      if (err instanceof InvalidDataError) {
-        this.setStatus(400);
+      if (err instanceof NotFoundError) {
+        this.setStatus(404);
+        ;(err as any).status = 404;
         throw err;
       }
       throw err;
@@ -60,8 +61,9 @@ export class MaintenanceController extends Controller {
           this.setStatus(404);
           throw err;
         }
-        if (err instanceof InvalidDataError) {
-          this.setStatus(400);
+        if (err instanceof NotFoundError) {
+          this.setStatus(404);
+          ;(err as any).status = 404;
           throw err;
         }
         throw err;
@@ -76,6 +78,7 @@ export class MaintenanceController extends Controller {
     } catch (err) {
       if (err instanceof NotFoundError) {
         this.setStatus(404);
+        ;(err as any).status = 404;
         throw err;
       }
       throw err;
