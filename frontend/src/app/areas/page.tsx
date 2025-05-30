@@ -21,7 +21,7 @@ import {
   RightOutlined,
 } from "@ant-design/icons";
 import { useSearchParams, useRouter } from "next/navigation";
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType } from "antd/es/table";
 
 export default function AreasPage() {
   const [form] = Form.useForm();
@@ -38,29 +38,28 @@ export default function AreasPage() {
   const router = useRouter();
   const plantId = searchParams.get("plantId");
 
-  // fetch all areas & plants
-  const { data: areas = [], isLoading: areasLoading } = useQuery<Area[]>("areas", () =>
-    areaApi.getAll().then((res) => res.data)
+  const { data: areas = [], isLoading: areasLoading } = useQuery<Area[]>(
+    "areas",
+    () => areaApi.getAll().then((res) => res.data)
   );
-  const { data: plants = [], isLoading: plantsLoading } = useQuery<Plant[]>("plants", () =>
-    plantApi.getAll().then((res) => res.data)
+  const { data: plants = [], isLoading: plantsLoading } = useQuery<Plant[]>(
+    "plants",
+    () => plantApi.getAll().then((res) => res.data)
   );
 
-  // Set initial plant filter if plantId is provided
   useEffect(() => {
     if (plantId) {
-      setFilters((prev) => ({ ...prev, plantId }));
+      setFilters((f) => ({ ...f, plantId }));
     }
   }, [plantId]);
 
-  // CRUD mutations for areas
   const createMutation = useMutation(
     (data: Omit<Area, "id" | "createdAt" | "updatedAt" | "neighbors">) =>
       areaApi.create(data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries("areas");
-        message.success("Area created successfully");
+        message.success("Area criada com sucesso");
         setIsModalVisible(false);
         form.resetFields();
       },
@@ -72,21 +71,20 @@ export default function AreasPage() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries("areas");
-        message.success("Area updated successfully");
+        message.success("Area atualizada com sucesso");
         setIsModalVisible(false);
-        form.resetFields();
         setEditingArea(null);
+        form.resetFields();
       },
     }
   );
   const deleteMutation = useMutation((id: string) => areaApi.delete(id), {
     onSuccess: () => {
       queryClient.invalidateQueries("areas");
-      message.success("Area deleted successfully");
+      message.success("Area deletada com sucesso");
     },
   });
 
-  // neighbor mutations
   const addNbrMut = useMutation(
     ({ areaId, neighborId }: { areaId: string; neighborId: string }) =>
       areaApi.addNeighbor(areaId, neighborId),
@@ -98,7 +96,6 @@ export default function AreasPage() {
     { onSuccess: () => queryClient.invalidateQueries("areas") }
   );
 
-  // open neighbor modal & load existing neighbors
   const openNbrModal = async (area: Area) => {
     setCurrentArea(area);
     const { data } = await areaApi.getNeighbors(area.id);
@@ -106,13 +103,11 @@ export default function AreasPage() {
     nbrForm.setFieldsValue({ neighbors: data.map((a) => a.id) });
     setNbrModalVisible(true);
   };
-
-  const handleNbrSave = async (selectedIds: string[]) => {
+  const handleNbrSave = async (ids: string[]) => {
     if (!currentArea) return;
     const oldIds = new Set(currentNeighbors.map((a) => a.id));
-    const newIds = new Set(selectedIds);
-
-    for (let id of selectedIds) {
+    const newIds = new Set(ids);
+    for (let id of ids) {
       if (!oldIds.has(id)) {
         await addNbrMut.mutateAsync({ areaId: currentArea.id, neighborId: id });
       }
@@ -122,31 +117,41 @@ export default function AreasPage() {
         await remNbrMut.mutateAsync({ areaId: currentArea.id, neighborId: id });
       }
     }
-
-    message.success("Neighbors updated");
+    message.success("Vizinhos atualizados");
     setNbrModalVisible(false);
   };
 
-  const filteredAreas = areas.filter((area) => {
-    const nameMatch = area.name.toLowerCase().includes(filters.name.toLowerCase());
-    const plantMatch = !filters.plantId || area.plantId === filters.plantId;
+  // Filtered list
+  const filteredAreas = areas.filter((a) => {
+    const nameMatch = a.name.toLowerCase().includes(filters.name.toLowerCase());
+    const plantMatch = !filters.plantId || a.plantId === filters.plantId;
     return nameMatch && plantMatch;
   });
 
-
+  // Table columns
   const columns: ColumnsType<Area> = [
-    { title: "Name", dataIndex: "name", key: "name", sorter: (a, b) => a.name.localeCompare(b.name) },
-    { title: "Location", dataIndex: "locationDescription", key: "locationDescription" },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Location",
+      dataIndex: "locationDescription",
+      key: "locationDescription",
+    },
     {
       title: "Plant",
       dataIndex: ["plant", "name"],
       key: "plant",
-      sorter: (a, b) => (a.plant?.name || "").localeCompare(b.plant?.name || ""),
+      sorter: (a, b) =>
+        (a.plant?.name || "").localeCompare(b.plant?.name || ""),
     },
     {
       title: "Neighbors",
       key: "neighbors",
-      render: (_: any, rec: Area) => (
+      render: (_, rec) => (
         <Button icon={<LinkOutlined />} onClick={() => openNbrModal(rec)}>
           {rec.neighbors?.length || 0}
         </Button>
@@ -155,24 +160,34 @@ export default function AreasPage() {
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, rec: Area) => (
+      render: (_, rec) => (
         <Space>
           <Button
             icon={<EditOutlined />}
             onClick={() => {
               setEditingArea(rec);
-              form.setFieldsValue(rec);
+              form.setFieldsValue({
+                name: rec.name,
+                locationDescription: rec.locationDescription,
+                plantId: rec.plantId, // Preenche também plantId
+              });
               setIsModalVisible(true);
             }}
           />
-          <Button icon={<RightOutlined />} onClick={() => router.push(`/equipment?areaId=${rec.id}`)}>
+          <Button
+            icon={<RightOutlined />}
+            onClick={() => router.push(`/equipment?areaId=${rec.id}`)}
+          >
             Equipment
           </Button>
           <Button
             danger
             icon={<DeleteOutlined />}
             onClick={() =>
-              Modal.confirm({ title: "Delete this area?", onOk: () => deleteMutation.mutate(rec.id) })
+              Modal.confirm({
+                title: "Delete this area?",
+                onOk: () => deleteMutation.mutate(rec.id),
+              })
             }
           />
         </Space>
@@ -186,7 +201,9 @@ export default function AreasPage() {
         <Input
           placeholder="Filter by name"
           value={filters.name}
-          onChange={(e) => setFilters((f) => ({ ...f, name: e.target.value }))}
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, name: e.target.value }))
+          }
           style={{ width: 200 }}
         />
         <Select
@@ -202,11 +219,15 @@ export default function AreasPage() {
             </Select.Option>
           ))}
         </Select>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => {
-          setEditingArea(null);
-          form.resetFields();
-          setIsModalVisible(true);
-        }}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => {
+            setEditingArea(null);
+            form.resetFields();
+            setIsModalVisible(true);
+          }}
+        >
           Add Area
         </Button>
       </Space>
@@ -216,29 +237,91 @@ export default function AreasPage() {
         dataSource={filteredAreas}
         loading={areasLoading || plantsLoading}
         rowKey="id"
-        pagination={{ defaultPageSize: 10, showSizeChanger: true, showTotal: total => `Total ${total} items` }}
+        pagination={{
+          defaultPageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+        }}
       />
 
-      {/* Create / Edit Area Modal */}
       <Modal
         title={editingArea ? "Edit Area" : "Add Area"}
         open={isModalVisible}
+        destroyOnClose
+        forceRender
         footer={null}
-        onCancel={() => { setIsModalVisible(false); setEditingArea(null); form.resetFields(); }}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setEditingArea(null);
+        }}
       >
         <Form
           form={form}
           layout="vertical"
-          onFinish={(vals) => { editingArea ? updateMutation.mutate({ id: editingArea.id, data: vals }) : createMutation.mutate(vals); }}
+          onFinish={(vals) => {
+            if (editingArea) {
+              updateMutation.mutate({
+                id: editingArea.id,
+                data: {
+                  name: vals.name,
+                  locationDescription: vals.locationDescription,
+                  plantId: vals.plantId, 
+                },
+              });
+            } else {
+              createMutation.mutate({
+                name: vals.name,
+                locationDescription: vals.locationDescription,
+                plantId: vals.plantId,
+              });
+            }
+          }}
+          onFinishFailed={(err) => console.log("❌ onFinishFailed:", err)}
         >
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: "Please input a name" }]}> <Input/> </Form.Item>
-          <Form.Item name="locationDescription" label="Location Description" rules={[{ required: true, message: "Please input a description" }]}> <Input.TextArea/> </Form.Item>
-          <Form.Item name="plantId" label="Plant" rules={[{ required: true, message: "Please select a plant" }]}> <Select> {plants.map(p => <Select.Option key={p.id} value={p.id}>{p.name}</Select.Option>)} </Select> </Form.Item>
-          <Form.Item> <Space> <Button onClick={() => setIsModalVisible(false)}>Cancel</Button> <Button type="primary" htmlType="submit">{editingArea ? "Update" : "Create"}</Button> </Space> </Form.Item>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: "Please input a name" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="locationDescription"
+            label="Location Description"
+            rules={[
+              { required: true, message: "Please input a description" },
+            ]}
+          >
+            <Input.TextArea />
+          </Form.Item>
+
+          <Form.Item
+            name="plantId"
+            label="Plant"
+            rules={[{ required: true, message: "Please select a plant" }]}
+          >
+            <Select>
+              {plants.map((p) => (
+                <Select.Option key={p.id} value={p.id}>
+                  {p.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button onClick={() => setIsModalVisible(false)}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                {editingArea ? "Update" : "Create"}
+              </Button>
+            </Space>
+          </Form.Item>
         </Form>
       </Modal>
 
-      {/* Manage Neighbors Modal */}
       <Modal
         title={`Manage Neighbors: ${currentArea?.name}`}
         open={nbrModalVisible}
@@ -257,13 +340,24 @@ export default function AreasPage() {
           >
             <Select mode="multiple">
               {areas
-                .filter(a => a.id !== currentArea?.id)
-                .map(a => (
-                  <Select.Option key={a.id} value={a.id}>{a.name}</Select.Option>
+                .filter((a) => a.id !== currentArea?.id)
+                .map((a) => (
+                  <Select.Option key={a.id} value={a.id}>
+                    {a.name}
+                  </Select.Option>
                 ))}
             </Select>
           </Form.Item>
-          <Form.Item> <Space> <Button onClick={() => setNbrModalVisible(false)}>Cancel</Button> <Button type="primary" htmlType="submit">Save Neighbors</Button> </Space> </Form.Item>
+          <Form.Item>
+            <Space>
+              <Button onClick={() => setNbrModalVisible(false)}>
+                Cancel
+              </Button>
+              <Button type="primary" htmlType="submit">
+                Save Neighbors
+              </Button>
+            </Space>
+          </Form.Item>
         </Form>
       </Modal>
     </div>

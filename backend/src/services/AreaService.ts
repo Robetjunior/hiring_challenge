@@ -78,7 +78,7 @@ export class AreaService {
         }
     }
 
-    public async update(id: string, data: Partial<Pick<Area, 'name' | 'locationDescription'>>): Promise<Area> {
+    public async update(id: string, data: Partial<Pick<Area, "name" | "locationDescription" | "plantId">>): Promise<Area> {
         const area = await this.findById(id);
         Object.assign(area, data);
         try {

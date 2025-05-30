@@ -56,7 +56,7 @@ export class AreaController extends Controller {
     @Put("{areaId}")
     public async updateArea(
         @Path() areaId: string,
-        @Body() requestBody: Partial<Pick<Area, "name" | "locationDescription">>
+        @Body() requestBody: Partial<Pick<Area, "name" | "locationDescription" | "plantId">>
     ): Promise<Area> {
         try {
             return await this.areaService.update(areaId, requestBody);
