@@ -202,9 +202,9 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"locationDescription":{"dataType":"string","required":true},"plantId":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Partial_Pick_Area.name-or-locationDescription__": {
+    "Partial_Pick_Area.name-or-locationDescription-or-plantId__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"locationDescription":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"locationDescription":{"dataType":"string"},"plantId":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -944,7 +944,7 @@ export function RegisterRoutes(app: Router) {
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsAreaController_updateArea: Record<string, TsoaRoute.ParameterSchema> = {
                 areaId: {"in":"path","name":"areaId","required":true,"dataType":"string"},
-                requestBody: {"in":"body","name":"requestBody","required":true,"ref":"Partial_Pick_Area.name-or-locationDescription__"},
+                requestBody: {"in":"body","name":"requestBody","required":true,"ref":"Partial_Pick_Area.name-or-locationDescription-or-plantId__"},
         };
         app.put('/areas/:areaId',
             ...(fetchMiddlewares<RequestHandler>(AreaController)),
