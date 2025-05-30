@@ -18,15 +18,18 @@ describe("AreaService", () => {
     beforeEach(() => {
         qb = {
             leftJoinAndSelect: jest.fn().mockReturnThis(),
-            where: jest.fn().mockReturnThis(),
-            getMany: jest.fn(),
-            getOne: jest.fn(),
+            where:            jest.fn().mockReturnThis(),
+            getMany:          jest.fn(),
+            getOne:           jest.fn(),
+            delete:           jest.fn().mockReturnThis(),
+            from:             jest.fn().mockReturnThis(),
+            execute:          jest.fn().mockImplementation(() => Promise.resolve()),
         } as any;
 
         mockRepository = {
-            create: jest.fn(),
-            save: jest.fn(),
-            remove: jest.fn(),
+            create:             jest.fn(),
+            save:               jest.fn(),
+            remove:             jest.fn(),
             createQueryBuilder: jest.fn().mockReturnValue(qb) as any,
         } as any;
 
@@ -161,12 +164,34 @@ describe("AreaService", () => {
 
     describe("delete", () => {
         const id = "1";
-        it("should delete area", async () => {
-            const area = { id, name: "A", locationDescription: "L", plantId: "p1", neighbors: [], equipment: [], createdAt: new Date(), updatedAt: new Date() } as unknown as Area;
+
+        it("should delete area (and clear neighbor relations)", async () => {
+            const area = {
+            id,
+            name: "A",
+            locationDescription: "L",
+            plantId: "p1",
+            neighbors: [],
+            equipment: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            } as unknown as Area;
+
             qb.getOne.mockResolvedValue(area);
             mockRepository.remove.mockResolvedValue(area);
 
             await areaService.delete(id);
+
+            // garante que o join table foi limpo
+            expect(qb.delete).toHaveBeenCalled();
+            expect(qb.from).toHaveBeenCalledWith("area_neighbors");
+            expect(qb.where).toHaveBeenCalledWith(
+            '"areaId" = :id OR "neighborId" = :id',
+            { id }
+            );
+            expect(qb.execute).toHaveBeenCalled();
+
+            // e que a entidade foi removida
             expect(mockRepository.remove).toHaveBeenCalledWith(area);
         });
 
@@ -176,7 +201,16 @@ describe("AreaService", () => {
         });
 
         it("should throw DependencyExistsError if equipment exists", async () => {
-            const area = { id, name: "A", locationDescription: "L", plantId: "p1", neighbors: [], equipment: [{ id: 'e1' }], createdAt: new Date(), updatedAt: new Date() } as unknown as Area;
+            const area = {
+            id,
+            name: "A",
+            locationDescription: "L",
+            plantId: "p1",
+            neighbors: [],
+            equipment: [{ id: "e1" }],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            } as unknown as Area;
             qb.getOne.mockResolvedValue(area);
             await expect(areaService.delete(id)).rejects.toThrow(DependencyExistsError);
         });
