@@ -26,6 +26,7 @@ export class AreaService {
         const area = await this.areaRepository
         .createQueryBuilder('area')
         .leftJoinAndSelect('area.neighbors', 'neighbors')
+        .leftJoinAndSelect('area.equipment', 'equipment') 
         .where('area.id = :id', { id })
         .getOne();
         if (!area) throw new AreaNotFoundError();
@@ -91,9 +92,18 @@ export class AreaService {
 
     public async delete(id: string): Promise<void> {
         const area = await this.findById(id);
+
         if (area.equipment && area.equipment.length > 0) {
-        throw new DependencyExistsError('Cannot delete area with associated equipment');
+            throw new DependencyExistsError('Cannot delete area with associated equipment');
         }
+
+        await this.areaRepository
+            .createQueryBuilder()
+            .delete()
+            .from("area_neighbors")
+            .where('"areaId" = :id OR "neighborId" = :id', { id })
+            .execute();
+            
         await this.areaRepository.remove(area);
     }
 }
